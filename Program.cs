@@ -37,4 +37,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+UserApi.Map(app);
+
 app.Run();
