@@ -40,6 +40,7 @@ namespace ValVenisBE.Controllers
                 {
                     return Results.NotFound();
                 }
+                quote.UserId = updatedQuote.UserId;
                 quote.QuoteText = updatedQuote.QuoteText;
                 quote.QuoteAuthor = updatedQuote.QuoteAuthor;
 

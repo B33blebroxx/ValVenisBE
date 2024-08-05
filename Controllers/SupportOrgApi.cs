@@ -40,6 +40,7 @@ namespace ValVenisBE.Controllers
                 {
                     return Results.NotFound();
                 }
+                org.UserId = updatedOrg.UserId;
                 org.SupportOrgName = updatedOrg.SupportOrgName;
                 org.SupportOrgSummary = updatedOrg.SupportOrgSummary;
                 org.SupportOrgPhone = updatedOrg.SupportOrgPhone;

@@ -41,5 +41,6 @@ UserApi.Map(app);
 SupportOrgApi.Map(app);
 QuoteApi.Map(app);
 LogoApi.Map(app);
+AboutMeApi.Map(app);
 
 app.Run();
