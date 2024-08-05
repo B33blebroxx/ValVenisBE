@@ -40,5 +40,6 @@ app.MapControllers();
 UserApi.Map(app);
 SupportOrgApi.Map(app);
 QuoteApi.Map(app);
+LogoApi.Map(app);
 
 app.Run();
