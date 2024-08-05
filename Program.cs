@@ -39,5 +39,6 @@ app.MapControllers();
 
 UserApi.Map(app);
 SupportOrgApi.Map(app);
+QuoteApi.Map(app);
 
 app.Run();
