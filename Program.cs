@@ -33,6 +33,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors();
+
 app.UseAuthorization();
 
 app.MapControllers();
@@ -42,5 +44,6 @@ SupportOrgApi.Map(app);
 QuoteApi.Map(app);
 LogoApi.Map(app);
 AboutMeApi.Map(app);
+MissionStatementApi.Map(app);
 
 app.Run();

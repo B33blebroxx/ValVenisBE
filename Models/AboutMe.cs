@@ -7,5 +7,6 @@
         public string? AboutMeText { get; set; }
         public string? AboutMeImage { get; set; }
         public string? AboutMeProfileLink { get; set; }
+        public User? User { get; set; }
     }
 }

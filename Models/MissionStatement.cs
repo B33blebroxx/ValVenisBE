@@ -1,11 +1,10 @@
 ﻿namespace ValVenisBE.Models
 {
-    public class Quote
+    public class MissionStatement
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public string? QuoteText { get; set; }
-        public string? QuoteAuthor { get; set; }
+        public string? MissionStatementText { get; set; }
         public User? User { get; set; }
     }
 }
