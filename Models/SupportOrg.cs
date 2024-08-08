@@ -9,5 +9,6 @@
         public string? SupportOrgUrl { get; set; }
         public string? SupportOrgPhone { get; set; }
         public string? SupportOrgLogo { get; set; }
+        public User? User { get; set; }
     }
 }
