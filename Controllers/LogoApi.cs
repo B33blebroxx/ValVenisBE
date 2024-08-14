@@ -9,7 +9,7 @@ namespace ValVenisBE.Controllers
             //Get Logo
             app.MapGet("/logos", (ValVenisBEDbContext db) =>
             {
-                var logos = db.Logos;
+                var logos = db.Logos.FirstOrDefault();
                 return Results.Ok(logos);
             });
 
