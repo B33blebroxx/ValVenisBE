@@ -10,7 +10,7 @@ namespace ValVenisBE.Controllers
             //Get AboutMe
             app.MapGet("/aboutme", (ValVenisBEDbContext db) =>
             {
-                var aboutme = db.AboutMes;
+                var aboutme = db.AboutMes.FirstOrDefault();
                 return Results.Ok(aboutme);
             });
 
