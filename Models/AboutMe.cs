@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public int UserId { get; set; }
+        public string? AboutMeHeader { get; set; }
         public string? AboutMeText { get; set; }
         public string? AboutMeImage { get; set; }
         public string? AboutMeProfileLink { get; set; }

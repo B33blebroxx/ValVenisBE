@@ -45,5 +45,7 @@ QuoteApi.Map(app);
 LogoApi.Map(app);
 AboutMeApi.Map(app);
 MissionStatementApi.Map(app);
+SupportPageApi.Map(app);
+QuotePageApi.Map(app);
 
 app.Run();

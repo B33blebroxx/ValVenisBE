@@ -14,9 +14,9 @@ namespace ValVenisBE.Controllers
             });
 
             //Update Mission Statement
-            app.MapPut("/missionstatement/{id}", (ValVenisBEDbContext db, int id, MissionStatement updatedMissionStatement) =>
+            app.MapPut("/missionstatement", (ValVenisBEDbContext db, int id, MissionStatement updatedMissionStatement) =>
             {
-                var missionStatement = db.MissionStatements.Find(id);
+                var missionStatement = db.MissionStatements.FirstOrDefault();
                 if (missionStatement == null)
                 {
                     return Results.NotFound();

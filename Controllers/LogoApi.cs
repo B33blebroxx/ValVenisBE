@@ -14,9 +14,9 @@ namespace ValVenisBE.Controllers
             });
 
             //Update Logo
-            app.MapPut("/logos/{id}", (ValVenisBEDbContext db, int id, Logo updatedLogo) =>
+            app.MapPut("/logos/{id}", (ValVenisBEDbContext db, Logo updatedLogo) =>
             {
-                var logo = db.Logos.Find(id);
+                var logo = db.Logos.FirstOrDefault();
                 if (logo == null)
                 {
                     return Results.NotFound();
