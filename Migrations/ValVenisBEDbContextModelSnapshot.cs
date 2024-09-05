@@ -392,10 +392,13 @@ namespace ValVenisBE.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Uid")
+                    b.Property<string>("PasswordHash")
                         .HasColumnType("text");
 
                     b.Property<string>("Username")
@@ -409,9 +412,10 @@ namespace ValVenisBE.Migrations
                         new
                         {
                             Id = 1,
+                            Email = "B33blebroxx@gmail.com",
                             IsAdmin = true,
-                            Uid = "Nv4p23JSKGZP6PwvWMRBc4J5Pnn2",
-                            Username = "V"
+                            PasswordHash = "$2a$11$HT4.GISfukAvizOJuC0r0uVFjJN9wRxSkGVcDaBN3lQxGz.U7k6re",
+                            Username = "B33blebroxx"
                         });
                 });
 

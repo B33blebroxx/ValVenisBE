@@ -25,7 +25,7 @@ public class ValVenisBEDbContext : DbContext
     {
         modelBuilder.Entity<User>().HasData(new User[]
         {
-            new User { Id = 1, Username = "V", IsAdmin = true, Uid = "Nv4p23JSKGZP6PwvWMRBc4J5Pnn2" }
+            new User { Id = 1, Username = "B33blebroxx", Email = "B33blebroxx@gmail.com", PasswordHash = "$2a$11$HT4.GISfukAvizOJuC0r0uVFjJN9wRxSkGVcDaBN3lQxGz.U7k6re", IsAdmin = true }
         });
 
         modelBuilder.Entity<SupportOrg>().HasData(new SupportOrg[]

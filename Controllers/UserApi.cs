@@ -8,14 +8,14 @@ namespace ValVenisBE.Controllers
         public static void Map(WebApplication app)
         {
             //Check User
-            app.MapGet("/user/check", (ValVenisBEDbContext db, int id) =>
+            app.MapPost("/checkUser", (ValVenisBEDbContext db, int id) =>
             {
                 var user = db.Users.Find(id);
                 if (user == null)
                 {
                     return Results.NotFound();
                 }
-                return Results.Ok();
+                return Results.Ok(user);
             });
         }
     }
