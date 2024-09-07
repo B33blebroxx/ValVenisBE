@@ -1,4 +1,5 @@
 ﻿using ValVenisBE.Models;
+using ValVenisBE.Helpers;
 
 namespace ValVenisBE.Controllers
 {
@@ -25,16 +26,26 @@ namespace ValVenisBE.Controllers
             });
 
             //Create Support Org
-            app.MapPost("/supportorgs", (ValVenisBEDbContext db, SupportOrg org) =>
+            app.MapPost("/supportorgs", (ValVenisBEDbContext db, SupportOrg org, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 db.SupportOrgs.Add(org);
                 db.SaveChanges();
                 return Results.Created($"/supportorgs/{org.Id}", org);
             });
 
             //Update Support Org
-            app.MapPut("/supportorgs/{id}", (ValVenisBEDbContext db, int id, SupportOrg updatedOrg) =>
+            app.MapPut("/supportorgs/{id}", (ValVenisBEDbContext db, int id, SupportOrg updatedOrg, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 var org = db.SupportOrgs.Find(id);
                 if (org == null)
                 {
@@ -52,8 +63,13 @@ namespace ValVenisBE.Controllers
             });
 
             //Delete Support Org
-            app.MapDelete("/supportorgs/{id}", (ValVenisBEDbContext db, int id) =>
+            app.MapDelete("/supportorgs/{id}", (ValVenisBEDbContext db, int id, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 var org = db.SupportOrgs.Find(id);
                 if (org == null)
                 {

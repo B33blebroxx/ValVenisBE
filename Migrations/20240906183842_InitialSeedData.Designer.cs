@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ValVenisBE.Migrations
 {
     [DbContext(typeof(ValVenisBEDbContext))]
-    [Migration("20240905202751_NewInitialSeedWithAuth")]
-    partial class NewInitialSeedWithAuth
+    [Migration("20240906183842_InitialSeedData")]
+    partial class InitialSeedData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -398,10 +398,10 @@ namespace ValVenisBE.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Role")
                         .HasColumnType("text");
 
                     b.Property<string>("Username")
@@ -416,8 +416,8 @@ namespace ValVenisBE.Migrations
                         {
                             Id = 1,
                             Email = "B33blebroxx@gmail.com",
-                            IsAdmin = true,
                             PasswordHash = "$2a$11$HT4.GISfukAvizOJuC0r0uVFjJN9wRxSkGVcDaBN3lQxGz.U7k6re",
+                            Role = "Admin",
                             Username = "B33blebroxx"
                         });
                 });

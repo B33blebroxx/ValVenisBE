@@ -1,4 +1,5 @@
 ﻿using ValVenisBE.Models;
+using ValVenisBE.Helpers;
 
 namespace ValVenisBE.Controllers
 {
@@ -14,8 +15,13 @@ namespace ValVenisBE.Controllers
             });
 
             //Update Logo
-            app.MapPut("/logos/{id}", (ValVenisBEDbContext db, Logo updatedLogo) =>
+            app.MapPut("/logos/{id}", (ValVenisBEDbContext db, Logo updatedLogo, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 var logo = db.Logos.FirstOrDefault();
                 if (logo == null)
                 {

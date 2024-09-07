@@ -1,4 +1,5 @@
 ﻿using ValVenisBE.Models;
+using ValVenisBE.Helpers;
 
 namespace ValVenisBE.Controllers
 {
@@ -25,16 +26,26 @@ namespace ValVenisBE.Controllers
             });
 
             //Create Quote
-            app.MapPost("/quotes", (ValVenisBEDbContext db, Quote quote) =>
+            app.MapPost("/quotes", (ValVenisBEDbContext db, Quote quote, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 db.Quotes.Add(quote);
                 db.SaveChanges();
                 return Results.Created($"/quotes/{quote.Id}", quote);
             });
 
             //Update Quote
-            app.MapPut("/quotes/{id}", (ValVenisBEDbContext db, int id, Quote updatedQuote) =>
+            app.MapPut("/quotes/{id}", (ValVenisBEDbContext db, int id, Quote updatedQuote, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 var quote = db.Quotes.Find(id);
                 if (quote == null)
                 {
@@ -49,8 +60,13 @@ namespace ValVenisBE.Controllers
             });
 
             //Delete Quote
-            app.MapDelete("/quotes/{id}", (ValVenisBEDbContext db, int id) =>
+            app.MapDelete("/quotes/{id}", (ValVenisBEDbContext db, int id, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 var quote = db.Quotes.Find(id);
                 if (quote == null)
                 {

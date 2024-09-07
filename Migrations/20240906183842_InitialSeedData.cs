@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ValVenisBE.Migrations
 {
     /// <inheritdoc />
-    public partial class NewInitialSeedWithAuth : Migration
+    public partial class InitialSeedData : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,7 +22,7 @@ namespace ValVenisBE.Migrations
                     Username = table.Column<string>(type: "text", nullable: true),
                     Email = table.Column<string>(type: "text", nullable: true),
                     PasswordHash = table.Column<string>(type: "text", nullable: true),
-                    IsAdmin = table.Column<bool>(type: "boolean", nullable: false)
+                    Role = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -183,8 +183,8 @@ namespace ValVenisBE.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "Email", "IsAdmin", "PasswordHash", "Username" },
-                values: new object[] { 1, "B33blebroxx@gmail.com", true, "$2a$11$HT4.GISfukAvizOJuC0r0uVFjJN9wRxSkGVcDaBN3lQxGz.U7k6re", "B33blebroxx" });
+                columns: new[] { "Id", "Email", "PasswordHash", "Role", "Username" },
+                values: new object[] { 1, "B33blebroxx@gmail.com", "$2a$11$HT4.GISfukAvizOJuC0r0uVFjJN9wRxSkGVcDaBN3lQxGz.U7k6re", "Admin", "B33blebroxx" });
 
             migrationBuilder.InsertData(
                 table: "AboutMes",
