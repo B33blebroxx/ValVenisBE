@@ -1,4 +1,5 @@
 ﻿using ValVenisBE.Models;
+using ValVenisBE.Helpers;
 
 namespace ValVenisBE.Controllers
 {
@@ -14,8 +15,13 @@ namespace ValVenisBE.Controllers
             });
 
             // Update QuotePage
-            app.MapPut("/quotepage", (ValVenisBEDbContext db, QuotePage updatedQuotePage) =>
+            app.MapPut("/quotepage", (ValVenisBEDbContext db, QuotePage updatedQuotePage, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 var quotepage = db.QuotePages.FirstOrDefault();
                 if (quotepage == null)
                 {

@@ -6,7 +6,7 @@
         public string? Username { get; set; }
         public string? Email { get; set; }
         public string? PasswordHash { get; set; }
-        public bool IsAdmin { get; set; }
+        public string? Role { get; set; }
         public ICollection<SupportOrg>? SupportOrg { get; set; }
         public ICollection<Quote>? Quote { get; set; }
         public MissionStatement? MissionStatement { get; set; }

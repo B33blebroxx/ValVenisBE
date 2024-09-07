@@ -1,4 +1,5 @@
 ﻿using ValVenisBE.Models;
+using ValVenisBE.Helpers;
 
 namespace ValVenisBE.Controllers
 {
@@ -14,8 +15,13 @@ namespace ValVenisBE.Controllers
             });
 
             // Update AboutMe
-            app.MapPut("/aboutme", (ValVenisBEDbContext db, AboutMe updatedAboutMe) =>
+            app.MapPut("/aboutme", (ValVenisBEDbContext db, AboutMe updatedAboutMe, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 var aboutme = db.AboutMes.FirstOrDefault();
                 if (aboutme == null)
                 {

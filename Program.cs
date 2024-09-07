@@ -29,21 +29,56 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
+
+        // Enable Swagger to use the JWT token in the Authorization header
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                context.Token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddControllers();
 builder.Services.AddNpgsql<ValVenisBEDbContext>(builder.Configuration["ValVenisBEDbConnectionString"]);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Add JWT authentication to Swagger
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Please enter JWT with Bearer into field",
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
+    });
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
         policy.WithOrigins("http://localhost:3000", "http://localhost:5003")
-        .AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader();
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
@@ -62,7 +97,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-UserApi.Map(app);
 SupportOrgApi.Map(app);
 QuoteApi.Map(app);
 LogoApi.Map(app);

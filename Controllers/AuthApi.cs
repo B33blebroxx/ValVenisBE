@@ -6,6 +6,7 @@ using System.Text;
 using BCrypt.Net;
 using ValVenisBE.Dtos;
 using ValVenisBE.Models;
+using ValVenisBE.Helpers;
 
 namespace ValVenisBE.Controllers
 {
@@ -14,15 +15,21 @@ namespace ValVenisBE.Controllers
         public static void Map(WebApplication app)
         {
             //Register User
-            app.MapPost("/auth/register", async (ValVenisBEDbContext db, User user) =>
+            app.MapPost("/auth/register", async (ValVenisBEDbContext db, User user, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 if (db.Users.Any(u => u.Username == user.Username))
                 {
                     return Results.BadRequest("Username already exists.");
                 }
 
-                // Hash the password and save the user
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+                user.Role = "admin";
+
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
                 return Results.Ok("User registered successfully.");
@@ -32,13 +39,13 @@ namespace ValVenisBE.Controllers
             app.MapPost("/auth/login", (ValVenisBEDbContext db, UserLoginDto login, IConfiguration config) =>
             {
                 var user = db.Users.SingleOrDefault(u => u.Username == login.Username);
-                if (user == null || !BCrypt.Net.BCrypt.Verify(login.Password, user.PasswordHash)) // Verify hashed password
+                if (user == null || user.Role != "admin" || !BCrypt.Net.BCrypt.Verify(login.Password, user.PasswordHash)) // Verify hashed password
                 {
                     return Results.Unauthorized();
                 }
 
                 var token = GenerateJwtToken(user, config);
-                return Results.Ok(new { token });
+                return Results.Ok(new { user, token });
             });
 
 
@@ -52,7 +59,8 @@ namespace ValVenisBE.Controllers
                 {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Username),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
                 var token = new JwtSecurityToken(

@@ -1,4 +1,5 @@
 ﻿using ValVenisBE.Models;
+using ValVenisBE.Helpers;
 
 namespace ValVenisBE.Controllers
 {
@@ -14,8 +15,13 @@ namespace ValVenisBE.Controllers
             });
 
             //Update Mission Statement
-            app.MapPut("/missionstatement", (ValVenisBEDbContext db, int id, MissionStatement updatedMissionStatement) =>
+            app.MapPut("/missionstatement", (ValVenisBEDbContext db, int id, MissionStatement updatedMissionStatement, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 var missionStatement = db.MissionStatements.FirstOrDefault();
                 if (missionStatement == null)
                 {

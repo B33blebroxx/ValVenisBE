@@ -1,4 +1,5 @@
 ﻿using ValVenisBE.Models;
+using ValVenisBE.Helpers;
 
 namespace ValVenisBE.Controllers
 {
@@ -14,8 +15,13 @@ namespace ValVenisBE.Controllers
             });
 
             //Update Support Page
-            app.MapPut("/supportpage", (ValVenisBEDbContext db, SupportPage updatedSupportPage) =>
+            app.MapPut("/supportpage", (ValVenisBEDbContext db, SupportPage updatedSupportPage, HttpContext context) =>
             {
+                if (!AuthHelper.IsAdmin(context))
+                {
+                    return Results.Forbid();
+                }
+
                 var supportPage = db.SupportPages.FirstOrDefault();
                 if (supportPage == null)
                 {
