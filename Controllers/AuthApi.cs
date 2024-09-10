@@ -35,6 +35,43 @@ namespace ValVenisBE.Controllers
                 return Results.Ok("User registered successfully.");
             });
 
+            //Check if user is logged in
+            app.MapGet("/auth/check", (HttpContext context) =>
+            {
+                if (!AuthHelper.IsLoggedIn(context))
+                {
+                    return Results.Unauthorized();
+                }
+
+                // Extract the user information from the token
+                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+
+                if (jwtToken == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                // Extract claims from the token
+                var username = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+                var role = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == "userID")?.Value; // Ensure "userID" is used
+
+                // Construct the user object
+                var user = new
+                {
+                    UserId = userId, // Ensure this is correctly set
+                    Username = username,
+                    Role = role
+                };
+
+                return Results.Ok(new { isLoggedIn = true, user });
+            });
+
+
+
+
             //User Login
             app.MapPost("/auth/login", (ValVenisBEDbContext db, UserLoginDto login, IConfiguration config) =>
             {
@@ -49,7 +86,6 @@ namespace ValVenisBE.Controllers
             });
 
 
-            //Token Generation
             static string GenerateJwtToken(User user, IConfiguration config)
             {
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
@@ -57,11 +93,12 @@ namespace ValVenisBE.Controllers
 
                 var claims = new[]
                 {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role)
-            };
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Role, user.Role),
+                    new Claim("userID", user.Id.ToString()) // Ensure userID is added
+                };
 
                 var token = new JwtSecurityToken(
                     issuer: config["Jwt:Issuer"],
