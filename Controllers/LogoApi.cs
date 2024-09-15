@@ -1,5 +1,5 @@
 ﻿using ValVenisBE.Models;
-using ValVenisBE.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ValVenisBE.Controllers
 {
@@ -15,13 +15,8 @@ namespace ValVenisBE.Controllers
             });
 
             //Update Logo
-            app.MapPut("/logos/{id}", (ValVenisBEDbContext db, Logo updatedLogo, HttpContext context) =>
+            app.MapPut("/logos/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, Logo updatedLogo) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 var logo = db.Logos.FirstOrDefault();
                 if (logo == null)
                 {
@@ -30,7 +25,7 @@ namespace ValVenisBE.Controllers
                 logo.UserId = updatedLogo.UserId;
                 logo.LogoImage = updatedLogo.LogoImage;
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.Ok(logo);
             });
 

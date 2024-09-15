@@ -1,5 +1,5 @@
 ﻿using ValVenisBE.Models;
-using ValVenisBE.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ValVenisBE.Controllers
 {
@@ -15,21 +15,19 @@ namespace ValVenisBE.Controllers
             });
 
             //Update Mission Statement
-            app.MapPut("/missionstatement", (ValVenisBEDbContext db, int id, MissionStatement updatedMissionStatement, HttpContext context) =>
+            app.MapPut("/missionstatement", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, MissionStatement updatedMissionStatement) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 var missionStatement = db.MissionStatements.FirstOrDefault();
                 if (missionStatement == null)
                 {
                     return Results.NotFound();
                 }
                 missionStatement.MissionStatementText = updatedMissionStatement.MissionStatementText;
+                missionStatement.WelcomeMessage = updatedMissionStatement.WelcomeMessage;
+                missionStatement.MissionStatementAcronym = updatedMissionStatement.MissionStatementAcronym;
+                missionStatement.UserId = updatedMissionStatement.UserId;
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.Ok(missionStatement);
             });
         }
