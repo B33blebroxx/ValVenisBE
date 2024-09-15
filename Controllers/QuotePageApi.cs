@@ -1,5 +1,5 @@
 ﻿using ValVenisBE.Models;
-using ValVenisBE.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ValVenisBE.Controllers
 {
@@ -15,13 +15,8 @@ namespace ValVenisBE.Controllers
             });
 
             // Update QuotePage
-            app.MapPut("/quotepage", (ValVenisBEDbContext db, QuotePage updatedQuotePage, HttpContext context) =>
+            app.MapPut("/quotepage", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, QuotePage updatedQuotePage) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 var quotepage = db.QuotePages.FirstOrDefault();
                 if (quotepage == null)
                 {
@@ -37,7 +32,7 @@ namespace ValVenisBE.Controllers
                 quotepage.QuotePageHeader = updatedQuotePage.QuotePageHeader;
                 quotepage.QuotePageIntro = updatedQuotePage.QuotePageIntro;
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.Ok(quotepage);
             });
         }

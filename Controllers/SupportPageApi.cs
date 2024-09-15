@@ -1,5 +1,5 @@
 ﻿using ValVenisBE.Models;
-using ValVenisBE.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ValVenisBE.Controllers
 {
@@ -15,13 +15,8 @@ namespace ValVenisBE.Controllers
             });
 
             //Update Support Page
-            app.MapPut("/supportpage", (ValVenisBEDbContext db, SupportPage updatedSupportPage, HttpContext context) =>
+            app.MapPut("/supportpage", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, SupportPage updatedSupportPage) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 var supportPage = db.SupportPages.FirstOrDefault();
                 if (supportPage == null)
                 {
@@ -30,7 +25,7 @@ namespace ValVenisBE.Controllers
                 supportPage.SupportPageHeader = updatedSupportPage.SupportPageHeader;
                 supportPage.SupportPageIntro = updatedSupportPage.SupportPageIntro;
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.Ok(supportPage);
             });
         }

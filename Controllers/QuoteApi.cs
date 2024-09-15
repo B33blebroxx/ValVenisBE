@@ -1,5 +1,6 @@
 ﻿using ValVenisBE.Models;
-using ValVenisBE.Helpers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ValVenisBE.Controllers
 {
@@ -8,14 +9,14 @@ namespace ValVenisBE.Controllers
         public static void Map(WebApplication app)
         {
             //Get Quotes
-            app.MapGet("/quotes", (ValVenisBEDbContext db) =>
+            app.MapGet("/quotes", async (ValVenisBEDbContext db) =>
             {
-                var quotes = db.Quotes.ToList();
+                var quotes = await db.Quotes.ToListAsync();
                 return Results.Ok(quotes);
             });
 
             //Get Quote by ID
-            app.MapGet("/quotes/{id}", (ValVenisBEDbContext db, int id) =>
+            app.MapGet("/quotes/{id}", [Authorize(Roles = "admin")] (ValVenisBEDbContext db, int id) =>
             {
                 var quote = db.Quotes.Find(id);
                 if (quote == null)
@@ -26,26 +27,16 @@ namespace ValVenisBE.Controllers
             });
 
             //Create Quote
-            app.MapPost("/quotes", (ValVenisBEDbContext db, Quote quote, HttpContext context) =>
+            app.MapPost("/quotes", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, Quote quote) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 db.Quotes.Add(quote);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.Created($"/quotes/{quote.Id}", quote);
             });
 
             //Update Quote
-            app.MapPut("/quotes/{id}", (ValVenisBEDbContext db, int id, Quote updatedQuote, HttpContext context) =>
+            app.MapPut("/quotes/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id, Quote updatedQuote) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 var quote = db.Quotes.Find(id);
                 if (quote == null)
                 {
@@ -55,25 +46,20 @@ namespace ValVenisBE.Controllers
                 quote.QuoteText = updatedQuote.QuoteText;
                 quote.QuoteAuthor = updatedQuote.QuoteAuthor;
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.Ok(quote);
             });
 
             //Delete Quote
-            app.MapDelete("/quotes/{id}", (ValVenisBEDbContext db, int id, HttpContext context) =>
+            app.MapDelete("/quotes/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 var quote = db.Quotes.Find(id);
                 if (quote == null)
                 {
                     return Results.NotFound();
                 }
                 db.Quotes.Remove(quote);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.Ok();
             });
         }

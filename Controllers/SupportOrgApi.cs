@@ -1,5 +1,6 @@
 ﻿using ValVenisBE.Models;
-using ValVenisBE.Helpers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ValVenisBE.Controllers
 {
@@ -8,14 +9,14 @@ namespace ValVenisBE.Controllers
         public static void Map(WebApplication app)
         {
             //Get Support Orgs
-            app.MapGet("/supportorgs", (ValVenisBEDbContext db) =>
+            app.MapGet("/supportorgs", async (ValVenisBEDbContext db) =>
             {
-                var orgs = db.SupportOrgs.ToList();
+                var orgs = await db.SupportOrgs.ToListAsync();
                 return Results.Ok(orgs);
             });
 
             //Get Support Org by ID
-            app.MapGet("/supportorgs/{id}", (ValVenisBEDbContext db, int id) =>
+            app.MapGet("/supportorgs/{id}", [Authorize(Roles = "admin")] (ValVenisBEDbContext db, int id) =>
             {
                 var org = db.SupportOrgs.Find(id);
                 if (org == null)
@@ -26,26 +27,16 @@ namespace ValVenisBE.Controllers
             });
 
             //Create Support Org
-            app.MapPost("/supportorgs", (ValVenisBEDbContext db, SupportOrg org, HttpContext context) =>
+            app.MapPost("/supportorgs", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, SupportOrg org) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 db.SupportOrgs.Add(org);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.Created($"/supportorgs/{org.Id}", org);
             });
 
             //Update Support Org
-            app.MapPut("/supportorgs/{id}", (ValVenisBEDbContext db, int id, SupportOrg updatedOrg, HttpContext context) =>
+            app.MapPut("/supportorgs/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id, SupportOrg updatedOrg) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 var org = db.SupportOrgs.Find(id);
                 if (org == null)
                 {
@@ -58,25 +49,20 @@ namespace ValVenisBE.Controllers
                 org.SupportOrgUrl = updatedOrg.SupportOrgUrl;
                 org.SupportOrgLogo = updatedOrg.SupportOrgLogo;
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.Ok(org);
             });
 
             //Delete Support Org
-            app.MapDelete("/supportorgs/{id}", (ValVenisBEDbContext db, int id, HttpContext context) =>
+            app.MapDelete("/supportorgs/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 var org = db.SupportOrgs.Find(id);
                 if (org == null)
                 {
                     return Results.NotFound();
                 }
                 db.SupportOrgs.Remove(org);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.NoContent();
             });
 

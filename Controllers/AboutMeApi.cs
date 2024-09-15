@@ -1,5 +1,5 @@
 ﻿using ValVenisBE.Models;
-using ValVenisBE.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ValVenisBE.Controllers
 {
@@ -15,13 +15,8 @@ namespace ValVenisBE.Controllers
             });
 
             // Update AboutMe
-            app.MapPut("/aboutme", (ValVenisBEDbContext db, AboutMe updatedAboutMe, HttpContext context) =>
+            app.MapPut("/aboutme", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, AboutMe updatedAboutMe) =>
             {
-                if (!AuthHelper.IsAdmin(context))
-                {
-                    return Results.Forbid();
-                }
-
                 var aboutme = db.AboutMes.FirstOrDefault();
                 if (aboutme == null)
                 {
@@ -39,7 +34,7 @@ namespace ValVenisBE.Controllers
                 aboutme.AboutMeProfileLink = updatedAboutMe.AboutMeProfileLink;
                 aboutme.AboutMeText = updatedAboutMe.AboutMeText;
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return Results.Ok(aboutme);
             });
         }
