@@ -17,40 +17,57 @@ namespace ValVenisBE.Controllers
             // Register User
             app.MapPost("/auth/register", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, User user) =>
             {
-                if (await db.Users.AnyAsync(u => u.Username == user.Username))
+                // Check if email already exists
+                if (await db.Users.AnyAsync(u => u.Email.ToLower() == user.Email.ToLower()))
+                {
+                    return Results.BadRequest("Email already exists.");
+                }
+
+                // Check if username already exists
+                if (await db.Users.AnyAsync(u => u.Username.ToLower() == user.Username.ToLower()))
                 {
                     return Results.BadRequest("Username already exists.");
                 }
 
+                // Hash the password
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+
+                // Assign role (this example assigns "admin" role; modify as necessary)
                 user.Role = "admin";
 
+                // Add user to the database
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
+
                 return Results.Ok("User registered successfully.");
             });
 
             // Check if user is logged in
             app.MapGet("/auth/check", [Authorize] (HttpContext context) =>
             {
-                var username = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+                // Extract claims from the authenticated user's token
+                var username = context.User.FindFirst(ClaimTypes.Name)?.Value; // Use ClaimTypes.Name for username
+                var email = context.User.FindFirst(JwtRegisteredClaimNames.Email)?.Value; // Extract the email from the token
                 var role = context.User.FindFirst(ClaimTypes.Role)?.Value;
                 var userId = context.User.FindFirst("userID")?.Value;
 
+                // Construct the user object
                 var user = new
                 {
                     UserId = userId,
                     Username = username,
+                    Email = email,
                     Role = role
                 };
 
                 return Results.Ok(new { isLoggedIn = true, user });
             });
 
+
             // User Login
             app.MapPost("/auth/login", async (ValVenisBEDbContext db, UserLoginDto login, IConfiguration config) =>
             {
-                var user = await db.Users.SingleOrDefaultAsync(u => u.Username == login.Username);
+                var user = await db.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == login.Email.ToLower());
                 if (user == null || user.Role != "admin" || !BCrypt.Net.BCrypt.Verify(login.Password, user.PasswordHash))
                 {
                     return Results.Unauthorized();
@@ -67,12 +84,12 @@ namespace ValVenisBE.Controllers
 
                 var claims = new[]
                 {
-                        new Claim(JwtRegisteredClaimNames.Sub, user.Username ?? throw new ArgumentNullException("user.Username")),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(ClaimTypes.Name, user.Username ?? throw new ArgumentNullException("user.Username")),
-                        new Claim(ClaimTypes.Role, user.Role ?? throw new ArgumentNullException("user.Role")),
-                        new Claim("userID", user.Id.ToString())
-                    };
+                    new Claim(ClaimTypes.Name, user.Username ?? throw new ArgumentNullException("user.Username")),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email ?? throw new ArgumentNullException("user.Email")),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.Role, user.Role ?? throw new ArgumentNullException("user.Role")),
+                    new Claim("userID", user.Id.ToString()) // Keep userId as a custom claim
+    };
 
                 var token = new JwtSecurityToken(
                     issuer: config["Jwt:Issuer"],
@@ -84,6 +101,7 @@ namespace ValVenisBE.Controllers
 
                 return new JwtSecurityTokenHandler().WriteToken(token);
             }
+
         }
     }
 }
