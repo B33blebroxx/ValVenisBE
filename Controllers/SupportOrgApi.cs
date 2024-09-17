@@ -16,9 +16,9 @@ namespace ValVenisBE.Controllers
             });
 
             //Get Support Org by ID
-            app.MapGet("/supportorgs/{id}", [Authorize(Roles = "admin")] (ValVenisBEDbContext db, int id) =>
+            app.MapGet("/supportorgs/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id) =>
             {
-                var org = db.SupportOrgs.Find(id);
+                var org = await db.SupportOrgs.FindAsync(id);
                 if (org == null)
                 {
                     return Results.NotFound();
@@ -37,7 +37,7 @@ namespace ValVenisBE.Controllers
             //Update Support Org
             app.MapPut("/supportorgs/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id, SupportOrg updatedOrg) =>
             {
-                var org = db.SupportOrgs.Find(id);
+                var org = await db.SupportOrgs.FindAsync(id);
                 if (org == null)
                 {
                     return Results.NotFound();
@@ -56,7 +56,7 @@ namespace ValVenisBE.Controllers
             //Delete Support Org
             app.MapDelete("/supportorgs/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id) =>
             {
-                var org = db.SupportOrgs.Find(id);
+                var org = await db.SupportOrgs.FindAsync(id);
                 if (org == null)
                 {
                     return Results.NotFound();

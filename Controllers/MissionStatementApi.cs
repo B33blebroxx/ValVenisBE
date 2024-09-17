@@ -1,5 +1,6 @@
 ﻿using ValVenisBE.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace ValVenisBE.Controllers
 {
@@ -8,16 +9,16 @@ namespace ValVenisBE.Controllers
         public static void Map(WebApplication app)
         {
             //Get Mission Statement
-            app.MapGet("/missionstatement", (ValVenisBEDbContext db) =>
+            app.MapGet("/missionstatement", async (ValVenisBEDbContext db) =>
             {
-                var missionStatement = db.MissionStatements.FirstOrDefault();
+                var missionStatement = await db.MissionStatements.FirstOrDefaultAsync();
                 return Results.Ok(missionStatement);
             });
 
             //Update Mission Statement
             app.MapPut("/missionstatement", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, MissionStatement updatedMissionStatement) =>
             {
-                var missionStatement = db.MissionStatements.FirstOrDefault();
+                var missionStatement = await db.MissionStatements.FirstOrDefaultAsync();
                 if (missionStatement == null)
                 {
                     return Results.NotFound();

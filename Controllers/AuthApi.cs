@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text;
 using ValVenisBE.Dtos;
@@ -16,7 +17,7 @@ namespace ValVenisBE.Controllers
             // Register User
             app.MapPost("/auth/register", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, User user) =>
             {
-                if (db.Users.Any(u => u.Username == user.Username))
+                if (await db.Users.AnyAsync(u => u.Username == user.Username))
                 {
                     return Results.BadRequest("Username already exists.");
                 }
@@ -47,9 +48,9 @@ namespace ValVenisBE.Controllers
             });
 
             // User Login
-            app.MapPost("/auth/login", (ValVenisBEDbContext db, UserLoginDto login, IConfiguration config) =>
+            app.MapPost("/auth/login", async (ValVenisBEDbContext db, UserLoginDto login, IConfiguration config) =>
             {
-                var user = db.Users.SingleOrDefault(u => u.Username == login.Username);
+                var user = await db.Users.SingleOrDefaultAsync(u => u.Username == login.Username);
                 if (user == null || user.Role != "admin" || !BCrypt.Net.BCrypt.Verify(login.Password, user.PasswordHash))
                 {
                     return Results.Unauthorized();
@@ -61,17 +62,17 @@ namespace ValVenisBE.Controllers
 
             static string GenerateJwtToken(User user, IConfiguration config)
             {
-                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key")));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
                 var claims = new[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Username),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Role, user.Role),
-                    new Claim("userID", user.Id.ToString())
-                };
+                        new Claim(JwtRegisteredClaimNames.Sub, user.Username ?? throw new ArgumentNullException("user.Username")),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                        new Claim(ClaimTypes.Name, user.Username ?? throw new ArgumentNullException("user.Username")),
+                        new Claim(ClaimTypes.Role, user.Role ?? throw new ArgumentNullException("user.Role")),
+                        new Claim("userID", user.Id.ToString())
+                    };
 
                 var token = new JwtSecurityToken(
                     issuer: config["Jwt:Issuer"],

@@ -1,4 +1,5 @@
 ﻿using ValVenisBE.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
 namespace ValVenisBE.Controllers
@@ -8,16 +9,16 @@ namespace ValVenisBE.Controllers
         public static void Map(WebApplication app)
         {
             //Get AboutMe
-            app.MapGet("/aboutme", (ValVenisBEDbContext db) =>
+            app.MapGet("/aboutme", async (ValVenisBEDbContext db) =>
             {
-                var aboutme = db.AboutMes.FirstOrDefault();
+                var aboutme = await db.AboutMes.FirstOrDefaultAsync();
                 return Results.Ok(aboutme);
             });
 
             // Update AboutMe
             app.MapPut("/aboutme", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, AboutMe updatedAboutMe) =>
             {
-                var aboutme = db.AboutMes.FirstOrDefault();
+                var aboutme = await db.AboutMes.FirstOrDefaultAsync();
                 if (aboutme == null)
                 {
                     return Results.NotFound();

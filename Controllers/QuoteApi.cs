@@ -16,9 +16,9 @@ namespace ValVenisBE.Controllers
             });
 
             //Get Quote by ID
-            app.MapGet("/quotes/{id}", [Authorize(Roles = "admin")] (ValVenisBEDbContext db, int id) =>
+            app.MapGet("/quotes/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id) =>
             {
-                var quote = db.Quotes.Find(id);
+                var quote = await db.Quotes.FindAsync(id);
                 if (quote == null)
                 {
                     return Results.NotFound();
@@ -37,7 +37,7 @@ namespace ValVenisBE.Controllers
             //Update Quote
             app.MapPut("/quotes/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id, Quote updatedQuote) =>
             {
-                var quote = db.Quotes.Find(id);
+                var quote = await db.Quotes.FindAsync(id);
                 if (quote == null)
                 {
                     return Results.NotFound();
@@ -53,7 +53,7 @@ namespace ValVenisBE.Controllers
             //Delete Quote
             app.MapDelete("/quotes/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id) =>
             {
-                var quote = db.Quotes.Find(id);
+                var quote = await db.Quotes.FindAsync(id);
                 if (quote == null)
                 {
                     return Results.NotFound();
