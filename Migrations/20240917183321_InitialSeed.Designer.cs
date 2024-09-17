@@ -10,15 +10,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ValVenisBE.Migrations
 {
     [DbContext(typeof(ValVenisBEDbContext))]
-    [Migration("20240906183842_InitialSeedData")]
-    partial class InitialSeedData
+    [Migration("20240917183321_InitialSeed")]
+    partial class InitialSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -417,7 +417,7 @@ namespace ValVenisBE.Migrations
                             Id = 1,
                             Email = "B33blebroxx@gmail.com",
                             PasswordHash = "$2a$11$HT4.GISfukAvizOJuC0r0uVFjJN9wRxSkGVcDaBN3lQxGz.U7k6re",
-                            Role = "Admin",
+                            Role = "admin",
                             Username = "B33blebroxx"
                         });
                 });

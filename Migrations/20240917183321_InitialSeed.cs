@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ValVenisBE.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSeedData : Migration
+    public partial class InitialSeed : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -184,7 +184,7 @@ namespace ValVenisBE.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "Email", "PasswordHash", "Role", "Username" },
-                values: new object[] { 1, "B33blebroxx@gmail.com", "$2a$11$HT4.GISfukAvizOJuC0r0uVFjJN9wRxSkGVcDaBN3lQxGz.U7k6re", "Admin", "B33blebroxx" });
+                values: new object[] { 1, "B33blebroxx@gmail.com", "$2a$11$HT4.GISfukAvizOJuC0r0uVFjJN9wRxSkGVcDaBN3lQxGz.U7k6re", "admin", "B33blebroxx" });
 
             migrationBuilder.InsertData(
                 table: "AboutMes",
