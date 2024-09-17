@@ -1,5 +1,6 @@
 ﻿using ValVenisBE.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace ValVenisBE.Controllers
 {
@@ -8,16 +9,16 @@ namespace ValVenisBE.Controllers
         public static void Map(WebApplication app)
         {
             //Get Support Page
-            app.MapGet("/supportpage", (ValVenisBEDbContext db) =>
+            app.MapGet("/supportpage", async (ValVenisBEDbContext db) =>
             {
-                var supportPage = db.SupportPages.FirstOrDefault();
+                var supportPage = await db.SupportPages.FirstOrDefaultAsync();
                 return Results.Ok(supportPage);
             });
 
             //Update Support Page
             app.MapPut("/supportpage", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, SupportPage updatedSupportPage) =>
             {
-                var supportPage = db.SupportPages.FirstOrDefault();
+                var supportPage = await db.SupportPages.FirstOrDefaultAsync();
                 if (supportPage == null)
                 {
                     return Results.NotFound();
