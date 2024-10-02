@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ValVenisBE.Migrations
 {
     [DbContext(typeof(ValVenisBEDbContext))]
-    [Migration("20240917183321_InitialSeed")]
+    [Migration("20241001162429_InitialSeed")]
     partial class InitialSeed
     {
         /// <inheritdoc />

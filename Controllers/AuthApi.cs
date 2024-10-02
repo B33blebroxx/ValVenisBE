@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.EntityFrameworkCore;
@@ -45,16 +44,14 @@ namespace ValVenisBE.Controllers
             // Check if user is logged in
             app.MapGet("/auth/check", [Authorize] (HttpContext context) =>
             {
-                // Extract claims from the authenticated user's token
-                var username = context.User.FindFirst(ClaimTypes.Name)?.Value; // Use ClaimTypes.Name for username
-                var email = context.User.FindFirst(JwtRegisteredClaimNames.Email)?.Value; // Extract the email from the token
-                var role = context.User.FindFirst(ClaimTypes.Role)?.Value;
                 var userId = context.User.FindFirst("userID")?.Value;
+                var username = context.User.FindFirst(ClaimTypes.Name)?.Value;
+                var email = context.User.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
+                var role = context.User.FindFirst(ClaimTypes.Role)?.Value;
 
-                // Construct the user object
                 var user = new
                 {
-                    UserId = userId,
+                    Id = userId,
                     Username = username,
                     Email = email,
                     Role = role
@@ -65,7 +62,7 @@ namespace ValVenisBE.Controllers
 
 
             // User Login
-            app.MapPost("/auth/login", async (ValVenisBEDbContext db, UserLoginDto login, IConfiguration config) =>
+            app.MapPost("/auth/login", async (HttpContext context, ValVenisBEDbContext db, UserLoginDto login, IConfiguration config) =>
             {
                 var user = await db.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == login.Email.ToLower());
                 if (user == null || user.Role != "admin" || !BCrypt.Net.BCrypt.Verify(login.Password, user.PasswordHash))
@@ -74,7 +71,34 @@ namespace ValVenisBE.Controllers
                 }
 
                 var token = GenerateJwtToken(user, config);
-                return Results.Ok(new { user, token });
+
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.Now.AddHours(1)
+                };
+
+                context.Response.Cookies.Append("AuthToken", token, cookieOptions);
+                return Results.Ok(new
+                {
+                    isLoggedIn = true,
+                    user = new
+                    {
+                        UserId = user.Id,
+                        Email = user.Email,
+                        Username = user.Username,
+                        Role = user.Role
+                    }
+                });
+            });
+
+            //User Logout
+            app.MapPost("/auth/logout", (HttpContext context) =>
+            {
+                context.Response.Cookies.Delete("AuthToken");
+                return Results.Ok(new { isLoggedIn = false });
             });
 
             static string GenerateJwtToken(User user, IConfiguration config)
