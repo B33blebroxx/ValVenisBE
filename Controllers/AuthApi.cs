@@ -51,7 +51,7 @@ namespace ValVenisBE.Controllers
 
                 var user = new
                 {
-                    Id = userId,
+                    UserId = userId,
                     Username = username,
                     Email = email,
                     Role = role
@@ -75,7 +75,7 @@ namespace ValVenisBE.Controllers
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = false,
+                    Secure = true,
                     SameSite = SameSiteMode.None,
                     Expires = DateTime.Now.AddHours(1)
                 };
