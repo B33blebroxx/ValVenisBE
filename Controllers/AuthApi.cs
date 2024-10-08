@@ -14,25 +14,31 @@ namespace ValVenisBE.Controllers
         public static void Map(WebApplication app)
         {
             // Register User
-            app.MapPost("/auth/register", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, User user) =>
+            app.MapPost("/auth/register", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, UserRegistrationDto userDto) =>
             {
                 // Check if email already exists
-                if (await db.Users.AnyAsync(u => u.Email.ToLower() == user.Email.ToLower()))
+                if (await db.Users.AnyAsync(u => u.Email.ToLower() == userDto.Email.ToLower()))
                 {
                     return Results.BadRequest("Email already exists.");
                 }
 
                 // Check if username already exists
-                if (await db.Users.AnyAsync(u => u.Username.ToLower() == user.Username.ToLower()))
+                if (await db.Users.AnyAsync(u => u.Username.ToLower() == userDto.Username.ToLower()))
                 {
                     return Results.BadRequest("Username already exists.");
                 }
 
                 // Hash the password
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
 
-                // Assign role (this example assigns "admin" role; modify as necessary)
-                user.Role = "admin";
+                // Create a new user
+                var user = new User
+                {
+                    Username = userDto.Username,
+                    Email = userDto.Email,
+                    PasswordHash = hashedPassword,
+                    Role = "admin"
+                };
 
                 // Add user to the database
                 db.Users.Add(user);
@@ -40,6 +46,56 @@ namespace ValVenisBE.Controllers
 
                 return Results.Ok("User registered successfully.");
             });
+
+
+            //Get all users
+            app.MapGet("/auth/users", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db) =>
+            {
+                var users = await db.Users.ToListAsync();
+
+                return Results.Ok(users);
+            });
+
+            //Update User
+            app.MapPut("/auth/users/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id, UserUpdateDto updateUserDto) =>
+            {
+                var user = await db.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return Results.NotFound("User not found.");
+                }
+
+                // Update fields
+                user.Username = updateUserDto.Username ?? user.Username;
+                user.Email = updateUserDto.Email ?? user.Email;
+
+                if (!string.IsNullOrEmpty(updateUserDto.Password))
+                {
+                    // Hash the new password
+                    user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(updateUserDto.Password);
+                }
+
+                await db.SaveChangesAsync();
+
+                return Results.Ok("User updated successfully.");
+            });
+
+            //Delete user
+            app.MapDelete("/auth/users/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id) =>
+            {
+                var user = await db.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return Results.NotFound();
+                }
+
+                db.Users.Remove(user);
+                await db.SaveChangesAsync();
+
+                return Results.Ok();
+            });
+
+
 
             // Check if user is logged in
             app.MapGet("/auth/check", [Authorize] (HttpContext context) =>
@@ -77,7 +133,8 @@ namespace ValVenisBE.Controllers
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.None,
-                    Expires = DateTime.Now.AddHours(1)
+                    Expires = DateTime.Now.AddHours(1),
+                    Path = "/"
                 };
 
                 context.Response.Cookies.Append("AuthToken", token, cookieOptions);
@@ -94,10 +151,19 @@ namespace ValVenisBE.Controllers
                 });
             });
 
-            //User Logout
+
+            // User Logout
             app.MapPost("/auth/logout", (HttpContext context) =>
             {
-                context.Response.Cookies.Delete("AuthToken");
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.Now.AddHours(-1) // Set expiration in the past to delete the cookie
+                };
+
+                context.Response.Cookies.Delete("AuthToken", cookieOptions);
                 return Results.Ok(new { isLoggedIn = false });
             });
 
