@@ -15,17 +15,6 @@ namespace ValVenisBE.Controllers
                 return Results.Ok(quotes);
             });
 
-            //Get Quote by ID
-            app.MapGet("/quotes/{id}", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, int id) =>
-            {
-                var quote = await db.Quotes.FindAsync(id);
-                if (quote == null)
-                {
-                    return Results.NotFound();
-                }
-                return Results.Ok(quote);
-            });
-
             //Create Quote
             app.MapPost("/quotes", [Authorize(Roles = "admin")] async (ValVenisBEDbContext db, Quote quote) =>
             {

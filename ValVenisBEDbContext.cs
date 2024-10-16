@@ -11,6 +11,7 @@ public class ValVenisBEDbContext : DbContext
     public DbSet<MissionStatement> MissionStatements { get; set; }
     public DbSet<SupportPage> SupportPages { get; set; }
     public DbSet<QuotePage> QuotePages { get; set; }
+    public DbSet<ExternalLink> ExternalLinks { get; set; }
 
     public ValVenisBEDbContext(DbContextOptions<ValVenisBEDbContext> options) : base(options)
     {
@@ -75,6 +76,13 @@ public class ValVenisBEDbContext : DbContext
         modelBuilder.Entity<QuotePage>().HasData(new QuotePage[]
         {
             new QuotePage { Id = 1, UserId = 1, QuotePageHeader = "Quotes", QuotePageIntro = "Here are some quotes that inspire us"}
+        });
+
+        modelBuilder.Entity<ExternalLink>().HasData(new ExternalLink[]
+        {
+            new ExternalLink { Id = 1, UserId = 1, LinkName = "The Trevor Project", LinkUrl = "https://www.thetrevorproject.org/" },
+            new ExternalLink { Id = 2, UserId = 1, LinkName = "Advocates for Trans Equality", LinkUrl = "https://www.transequality.org/" },
+            new ExternalLink { Id = 3, UserId = 1, LinkName = "Shop", LinkUrl = "https://val-venis.printify.me/products" }
         });
     }
 }
