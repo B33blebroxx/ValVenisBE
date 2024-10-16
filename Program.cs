@@ -127,5 +127,6 @@ MissionStatementApi.Map(app);
 SupportPageApi.Map(app);
 QuotePageApi.Map(app);
 AuthApi.Map(app);
+ExternalLinkApi.Map(app);
 
 app.Run();
