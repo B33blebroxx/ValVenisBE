@@ -1,6 +1,6 @@
-﻿using ValVenisBE.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using ValVenisBE.Models;
 
 namespace ValVenisBE.Controllers
 {

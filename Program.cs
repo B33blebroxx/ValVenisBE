@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using ValVenisBE;
 using ValVenisBE.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -94,7 +93,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Use this to extract token from cookies
+// Extract token from cookies
 app.Use(async (context, next) =>
 {
     var token = context.Request.Cookies["AuthToken"];
